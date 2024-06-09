@@ -1,0 +1,688 @@
+# Mainsail settings
+[include mainsail.cfg]
+
+[printer]
+kinematics: cartesian
+max_velocity: 500
+max_accel: 2500
+max_accel_to_decel: 2500
+max_z_velocity: 10
+max_z_accel: 100
+
+[stepper_x]
+# Remember, 3/16/24 you moved the X driver to the Extruder 1 position on the MCU and had to update the TMC settings to match
+step_pin: P1.15
+dir_pin: P1.14
+enable_pin: !P1.16
+microsteps: 16
+rotation_distance: 32
+full_steps_per_rotation: 400
+endstop_pin: tmc5160_stepper_x:virtual_endstop
+position_endstop: -25
+position_min: -25
+position_max: 308
+homing_speed: 50
+homing_retract_dist: 0
+
+[stepper_y]
+step_pin: P0.19
+dir_pin: P0.20
+enable_pin: !P2.8
+microsteps: 16
+rotation_distance: 32
+full_steps_per_rotation: 400
+endstop_pin: tmc5160_stepper_y:virtual_endstop
+position_endstop: -33
+position_min: -33
+position_max: 290
+homing_speed: 50
+homing_retract_dist: 0
+
+[stepper_z]
+step_pin: P0.22
+dir_pin: !P2.11
+enable_pin: !P0.21
+microsteps: 16
+rotation_distance: 8
+full_steps_per_rotation: 200
+endstop_pin: probe:z_virtual_endstop
+position_min: -1.7
+position_max: 200
+
+[extruder]
+step_pin: P2.13
+dir_pin: P0.11
+enable_pin: !P2.12
+microsteps: 16
+#   <16> for BMG with LDO-42sth25-1404MAH
+rotation_distance: 22.67895
+gear_ratio: 50:10 #for standard 10t motor
+full_steps_per_rotation: 200
+#   <400> for BMG with LDO-42sth25-1404MAH
+nozzle_diameter: 0.400
+filament_diameter: 1.750
+max_extrude_cross_section: 5
+pressure_advance: 0.1
+heater_pin: P2.7
+sensor_type: PT1000
+sensor_pin: P0.24
+control = pid
+pid_kp = 22.466
+pid_ki = 1.218
+pid_kd = 103.622
+min_temp: 0
+max_temp: 450
+
+
+[firmware_retraction]
+retract_length: .4
+retract_speed: 30
+unretract_extra_length: 0
+unretract_speed: 30
+
+[heater_bed]
+heater_pin: P2.5
+sensor_type: PT1000
+sensor_pin: P0.25
+control: pid
+control = pid
+pid_kp = 49.728
+pid_ki = 1.927
+pid_kd = 320.746
+min_temp: 0
+max_temp: 230
+
+[heated_fan]
+heater_pin: P2.4
+sensor_type: PT1000
+sensor_pin: P0.23
+min_temp: 0
+max_temp: 215
+control: pid
+pid_kp: 31.958
+pid_ki: 2.803
+pid_kd: 91.079
+pwm_cycle_time: 0.100
+pin: !P1.0
+shutdown_speed: 1
+cycle_time: 0.001
+hardware_pwm: False
+heater_temp: 150 # validate this
+min_speed: 0.25 # 25%
+idle_timeout: 120 # 2 minutes
+
+#[heater_generic part_cooler_heater]
+#gcode_id: P
+#   The id to use when reporting the temperature in the M105 command.
+#heater_pin: P2.4
+#max_power: 1.0
+#sensor_type: PT1000
+#sensor_pin: P0.23
+#smooth_time:  HAVEN'T USED THIS
+#control: pid
+#control = pid
+#pid_kp = 31.958
+#pid_ki = 2.803
+#pid_kd = 91.079
+#pwm_cycle_time: 0.100
+#min_temp: 0
+#max_temp: 225
+
+#[heater_fan part_cooler_heater]
+#pin: !P1.0
+#max_power: 1.0
+#shutdown_speed: 1
+#cycle_time: 0.001
+#hardware_pwm: False
+#kick_start_time: 0.1
+#off_below: 0.25
+#heater: part_cooler_heater
+#heater_temp: 225
+
+[heater_generic chamber_heater]
+gcode_id: C
+heater_pin: P1.24
+max_power: 1
+sensor_type: MAX31865
+sensor_pin: rpi:gpio22
+rtd_nominal_r: 100
+rtd_reference_r: 430
+rtd_num_of_wires: 3
+control: watermark
+#pid_Kp:
+#pid_Ki:
+#pid_Kd:
+#pwm_cycle_time:
+min_temp: 0
+max_temp: 150
+
+[verify_heater chamber_heater]
+max_error: 240
+#   The maximum "cumulative temperature error" before raising an
+#   error.
+check_gain_time: 240
+#   This controls heater verification during initial heating. Smaller
+#   values result in stricter checking and larger values allow for
+#   more time before an error is reported. Specifically, during
+#   initial heating, as long as the heater increases in temperature
+#   within this time frame (specified in seconds) then the internal
+#   "error counter" is reset. The default is 20 seconds for extruders
+#   and 60 seconds for heater_bed.
+hysteresis: 10
+#   The maximum temperature difference (in Celsius) to a target
+#   temperature that is considered in range of the target. This
+#   controls the max_error range check. It is rare to customize this
+#   value. The default is 5.
+heating_gain: 1
+#   The minimum temperature (in Celsius) that the heater must increase
+#   by during the check_gain_time check. It is rare to customize this
+#   value. The default is 2.
+
+[controller_fan chamber_fan]
+pin: P2.3
+max_power: 1.0
+shutdown_speed: 1
+cycle_time: .010
+hardware_pwm: False
+#kick_start_time: 0.100
+#off_below:
+fan_speed: 1.0
+idle_timeout: 600
+#   The amount of time (in seconds) after a stepper driver or heater
+#   was active and the fan should be kept running. The default
+#   is 30 seconds.
+heater: chamber_heater
+stepper: extruder
+
+#[temperature_sensor chamber] commented out to try putting directly in the heater chamber section
+#sensor_type: MAX31865
+#sensor_pin: rpi:gpio22
+#rtd_nominal_r: 100
+#rtd_reference_r: 430
+#rtd_num_of_wires: 3
+
+#[heater_fan heatbreak_fan] Not using this while the berd is on FAN1 normally on fan output
+#pin:
+#max_power: 1.0
+#shutdown_speed: 1
+#cycle_time: .010
+#hardware_pwm: False
+#kick_start_time: .1
+#heater: extruder
+
+[mcu]
+serial: /dev/serial/by-id/usb-Klipper_lpc1769_0D10010DA39869AFBE54405EC62000F5-if00
+
+[mcu rpi]
+serial: /tmp/klipper_host_mcu
+
+[temperature_sensor raspberry_pi]
+sensor_type: temperature_host
+min_temp: 10
+max_temp: 100
+
+[servo probewinch]
+pin: P2.0
+maximum_servo_angle: 290
+minimum_pulse_width: 0.001
+maximum_pulse_width: 0.002
+initial_angle: 290
+#initial_pulse_width:
+
+[probe]
+pin: P1.27 #probe input
+deactivate_on_each_sample: False
+x_offset: 29
+y_offset: 11
+z_offset = 2.2
+speed: 3.0
+samples: 1
+sample_retract_dist: 3.0
+#lift_speed:
+#samples_result: average
+#samples_tolerance: 0.100
+#samples_tolerance_retries: 0
+activate_gcode:
+  PROBE_DEPLOY
+  G4 P700
+  # allow time for probe to deploy before homing Z
+deactivate_gcode:
+  PROBE_RETRACT
+
+[gcode_macro PROBE_DEPLOY]
+gcode:
+  SET_SERVO SERVO=probewinch ANGLE=0
+
+[gcode_macro PROBE_RETRACT]
+gcode:
+ SET_SERVO SERVO=probewinch ANGLE=290
+
+
+[safe_z_home]
+home_xy_position: 130, 150
+speed: 175
+z_hop: 10
+z_hop_speed: 10
+
+
+[screws_tilt_adjust]
+screw1: 70, 270
+screw1_name: backleft
+#screw1_fine_adjust:
+screw2: 270, 270
+screw2_name: backright
+#screw2_fine_adjust:
+screw3: 270, 43
+screw3_name: frontright
+#screw3_fine_adjust:
+screw4: 70, 45
+screw4_name: frontleft
+#screw4_fine_adjust:
+speed: 140
+horizontal_move_z: 5
+#   The height (in mm) that the head should be commanded to move to
+#   just prior to starting a probe operation. The default is 5.
+screw_thread: CW-M4
+
+[bed_mesh]
+speed: 120
+#   The speed (in mm/s) of non-probing moves during the calibration.
+#   The default is 50.
+horizontal_move_z: 5
+#   The height (in mm) that the head should be commanded to move to
+#   just prior to starting a probe operation. The default is 5.
+mesh_min: 50, 40
+#   Defines the minimum X, Y coordinate of the mesh for rectangular
+#   beds. This coordinate is relative to the probe's location. This
+#   will be the first point probed, nearest to the origin. This
+#   parameter must be provided for rectangular beds.
+mesh_max: 270, 275
+#   Defines the maximum X, Y coordinate of the mesh for rectangular
+#   beds. Adheres to the same principle as mesh_min, however this will
+#   be the furthest point probed from the bed's origin. This parameter
+#   must be provided for rectangular beds.
+probe_count: 5
+
+########################################
+# Resonance test and compensation
+########################################
+
+#[adxl345]
+#cs_pin: rpi:None
+
+#[resonance_tester]
+#accel_chip: adxl345
+#probe_points:
+ #   150,150,20  # an example
+
+#[input_shaper]
+#shaper_freq_x: 72.0
+#shaper_freq_y: 28.0
+#shaper_type: mzv
+
+########################################
+# TMC5160 configuration
+########################################
+
+[tmc5160 stepper_x]
+cs_pin: P1.1
+spi_software_miso_pin: P0.5
+spi_software_mosi_pin: P1.17
+spi_software_sclk_pin: P0.4
+interpolate: False
+run_current: 0.730
+#stealthchop_threshold: 999999
+diag1_pin: ^!P1.25
+driver_SGT: 1
+
+[tmc5160 stepper_y]
+cs_pin: P1.9
+spi_software_miso_pin: P0.5
+spi_software_mosi_pin: P1.17
+spi_software_sclk_pin: P0.4
+interpolate: False
+run_current: .700
+#stealthchop_threshold: 999999
+diag1_pin: ^!P1.28
+driver_SGT: 0
+
+[tmc5160 stepper_z]
+cs_pin: P1.8
+spi_software_miso_pin: P0.5
+spi_software_mosi_pin: P1.17
+spi_software_sclk_pin: P0.4
+interpolate: False
+run_current: 0.850
+stealthchop_threshold: 999999
+#diag1_pin: P1.xx
+
+[tmc5160 extruder]
+cs_pin: P1.4
+spi_software_miso_pin: P0.5
+spi_software_mosi_pin: P1.17
+spi_software_sclk_pin: P0.4
+interpolate: False
+run_current: 0.300
+stealthchop_threshold: 999999
+#diag1_pin: P1.xx
+
+
+########################################
+# EXP1 / EXP2 (display) pins
+########################################
+[board_pins]
+#aliases:
+    # EXP1 header
+    EXP1_1=P1.30, EXP1_3=P1.18, EXP1_5=P1.20, EXP1_7=P1.22, EXP1_9=<GND>,
+    EXP1_2=P0.28, EXP1_4=P1.19, EXP1_6=P1.21, EXP1_8=P1.23, EXP1_10=<5V>,
+    # EXP2 header
+    EXP2_1=P0.17, EXP2_3=P3.26, EXP2_5=P3.25, EXP2_7=P1.31, EXP2_9=<GND>,
+    EXP2_2=P0.15, EXP2_4=P0.16, EXP2_6=P0.18, EXP2_8=<RST>, EXP2_10=<NC>
+    # Pins EXP2_1, EXP2_6, EXP2_2 are also MISO, MOSI, SCK of bus "ssp0"
+# See the sample-lcd.cfg file for definitions of common LCD displays.
+
+
+######################################################################
+# 128x64 Full Graphic Creality CR10 / ENDER 3 stockdisplay
+######################################################################
+# This section is used for a Creality "12864" display with a single
+# ribbon cable between the display's EXP3 plug and the
+# micro-controller board's EXP1 connector.
+[display]
+lcd_type: st7920
+cs_pin: EXP1_7
+sclk_pin: EXP1_6
+sid_pin: EXP1_8
+encoder_pins: ^EXP1_5, ^EXP1_3
+click_pin: ^!EXP1_2
+
+[output_pin beeper]
+pin: EXP1_1
+
+
+######################################################################
+# MACROS
+######################################################################
+[gcode_macro START_PRINT]
+gcode:
+    #{% set BED_TEMP = params.BED_TEMP|default(0)|float %}
+    #{% set EXTRUDER_TEMP = params.EXTRUDER_TEMP|default(0)|float %}
+    # Start bed heating
+    #M140 S{BED_TEMP}
+    # Use absolute coordinates
+    G90
+    # Reset the G-Code Z offset (adjust Z offset if needed)
+    SET_GCODE_OFFSET Z=0.0
+    # Home the printer
+    G28
+    PROBE_RETRACT
+    # Move the nozzle near the bed    
+    G1 Z5 F3000
+    # Move the nozzle very close to the bed
+    G1 Z3 F300
+    # Wait for bed to reach temperature
+    #M190 S{BED_TEMP}
+    # Set and wait for nozzle to reach temperature
+    #M109 S{EXTRUDER_TEMP}
+    G0 X0 Y15 F9000 ; Go to front
+    G0 Z0.15 ; Drop to bed
+    G92 E0 ; zero the extruded length
+    G1 X100 E15 F400 ; Extrude 15mm of filament in a 10cm line
+    G92 E0 ; zero the extruded length
+    G1 E-1 F500 ; Retract a little
+    G1 X80 F8000 ; Quickly wipe away from the filament line
+    G1 Z0.3 ; Raise and begin printing.
+
+[gcode_macro END_PRINT]
+gcode:
+    # Turn off bed, extruder, and fan
+    M140 S0
+    M104 S0
+    M106 S0
+    # Move nozzle away from print while retracting
+    G91
+    G1 X-50 Y-50 E-3 F300
+    # Raise nozzle by 10mm
+    PROBE_RETRACT
+    G1 Z15 F3000
+    G90
+    G1 X0 Y310
+    # Disable steppers
+    M84
+
+[gcode_macro SCREW_ADJUST]
+gcode:
+    G28  
+    SCREWS_TILT_CALCULATE
+    PROBE_RETRACT
+
+[gcode_macro PROBE_CALIB]
+gcode:
+    G28
+    PROBE_CALIBRATE
+    PROBE_RETRACT
+
+[gcode_macro BED_MESH]
+gcode:
+    G28
+    BED_MESH_CALIBRATE
+    PROBE_RETRACT
+
+
+
+
+
+#[gcode_macro M106]
+#gcode:
+#  {% set fanspeed = 255 %}
+#  {% if params.S is defined %}
+#    {% set fanspeed = params.S|int %}
+#  {% endif %}
+#  {% if fanspeed < 0 %}
+#    {% set fanspeed = 0 %}
+#  {% endif %}
+#  {% if fanspeed > 255 %}
+#    {% set fanspeed = 255 %}
+ # {% endif %}
+#  RESPOND PREFIX="info" MSG="Macro > M106 > speed {fanspeed}"
+#  FANSPEED SPEED={fanspeed}
+
+#what am I doing here, just messing with M106? This code failed to do anything. Need to look at virtual pins and see what that can do.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[gcode_macro HEAT_SOAK]
+description: heats the bed for a while
+
+variable_target_temp: 0
+variable_stage: None ## heating -> soaking -> done -> None
+
+## in seconds
+variable_check_interval: 10
+variable_soak_time_remaining: 0
+variable_total_time_elapsed: 0
+
+gcode:
+    {% set TARGET = params.TARGET | default(0) | float %}
+    {% set DURATION = (params.DURATION | default(5) | int) * 60 %} ## minutes to seconds
+
+    SET_GCODE_VARIABLE MACRO=HEAT_SOAK VARIABLE=target_temp         VALUE={ TARGET }
+    SET_GCODE_VARIABLE MACRO=HEAT_SOAK VARIABLE=stage               VALUE="'heating'"
+    SET_GCODE_VARIABLE MACRO=HEAT_SOAK VARIABLE=soak_time_remaining VALUE={ DURATION }
+    SET_GCODE_VARIABLE MACRO=HEAT_SOAK VARIABLE=total_time_elapsed  VALUE=0
+
+    ;; fire up the heater
+    SET_HEATER_TEMPERATURE HEATER=heater_bed TARGET={ TARGET }
+
+    ;; run the fan to circulate air
+    _SET_FAN_SPEED PERCENT=50
+
+    ;; put the bed and nozzle where they're a safe distance apart
+#    G28
+    #CENTER
+
+    M84 ;; turn off steppers
+
+    UPDATE_DELAYED_GCODE ID=heat_soaker DURATION={ check_interval }
+
+[gcode_macro CANCEL_HEAT_SOAK]
+description: cancels an in-progress HEAT_SOAK cycle
+gcode:
+    SET_GCODE_VARIABLE MACRO=HEAT_SOAK VARIABLE=stage VALUE="'cancel'"
+    UPDATE_DELAYED_GCODE ID=heat_soaker DURATION=1
+
+[delayed_gcode heat_soaker]
+; ## debug
+; { action_respond_info( printer['gcode_macro HEAT_SOAK'] | tojson )}
+gcode:
+    {% set heat_soak = printer['gcode_macro HEAT_SOAK'] %}
+
+    ## update total time elapsed
+    {% set total_time_elapsed = heat_soak.total_time_elapsed + heat_soak.check_interval %}
+    SET_GCODE_VARIABLE MACRO=HEAT_SOAK VARIABLE=total_time_elapsed VALUE={ total_time_elapsed }
+
+    {% set stage = heat_soak.stage %}
+    {% if stage == "heating" and printer.heater_bed.temperature >= heat_soak.target_temp %}
+        {% set stage = "soaking" %}
+    {% endif %}
+
+    {% if stage == "soaking" %}
+        ## update soak countdown
+        {% set soak_time_remaining = [heat_soak.soak_time_remaining - heat_soak.check_interval, 0] | max %}
+        SET_GCODE_VARIABLE MACRO=HEAT_SOAK VARIABLE=soak_time_remaining VALUE={ soak_time_remaining }
+
+        {% if soak_time_remaining == 0 %}
+            {% set stage = "done" %}
+        {% endif %}
+    {% endif %}
+
+    SET_GCODE_VARIABLE MACRO=HEAT_SOAK VARIABLE=stage VALUE="'{ stage }'"
+
+    {% if stage in ("done", "cancel") %}
+
+        {% if stage == "cancel" %}
+            {% set stage = "done" %}
+            TURN_OFF_HEATERS
+            M107 ; turn off fan
+
+            M117 { "soak cancelled after ~%.1fm" | format(total_time_elapsed / 60.0) }
+        {% else %}
+            M117 { "soak complete after %.1fm" | format(total_time_elapsed / 60.0) }
+        {% endif %}
+
+        ## reset all state vars, except stage, which may be queried via the api
+        SET_GCODE_VARIABLE MACRO=HEAT_SOAK VARIABLE=target_temp         VALUE=0
+        SET_GCODE_VARIABLE MACRO=HEAT_SOAK VARIABLE=soak_time_remaining VALUE=0
+        SET_GCODE_VARIABLE MACRO=HEAT_SOAK VARIABLE=total_time_elapsed  VALUE=0
+
+    {% else %}
+
+        {% if total_time_elapsed % 90 == 0 %}
+            ## output status periodically
+            {% if stage == "heating" %}
+                M117 { "heating -- %.1fm elapsed" | format(total_time_elapsed / 60.0) }
+            {% elif stage == "soaking" %}
+                M117 { "soaking -- %.1fm remaining" | format(soak_time_remaining / 60.0) }
+            {% endif %}
+        {% endif %}
+
+        ## trigger ourselves again
+        UPDATE_DELAYED_GCODE ID=heat_soaker DURATION={ heat_soak.check_interval }
+
+        ## dwell for 1ms to prevent from going idle
+        G4 P1
+
+    {% endif %}
+
+[gcode_macro _SET_FAN_SPEED]
+gcode:
+    M106 S{ (params.PERCENT | float) * 255 / 100 }
+
+
+[gcode_macro CENTER]
+gcode:
+    G90
+    G0 X{ printer.toolhead.axis_maximum.x/2 } Y{ printer.toolhead.axis_maximum.y/2 } Z{ printer.toolhead.axis_maximum.z/2 } F7200
+
+######################################################################
+# FILAMENT MACROS
+
+#[gcode_macro Prp_HTNCF]
+#description: Adjust filament-specific settings
+#gcode:
+  # Sets pressure advance for given filament
+#  SET_PRESSURE_ADVANCE ADVANCE=.04
+
+#[gcode_macro Prp_PETG]
+#description: Adjust filament-specific settings
+#gcode:
+  # Sets pressure advance for given filament
+#  SET_PRESSURE_ADVANCE ADVANCE=.05
+
+#*# <---------------------- SAVE_CONFIG ---------------------->
+#*# DO NOT EDIT THIS BLOCK OR BELOW. The contents are auto-generated.
+#*#
+#*# [extruder]
+#*#
+#*# [probe]
+#*# z_offset = 2.195
+#*#
+#*# [bed_mesh default]
+#*# version = 1
+#*# points =
+#*# 	-0.110000, -0.097500, -0.095000, -0.160000, -0.260000
+#*# 	0.007500, 0.015000, -0.010000, -0.082500, -0.200000
+#*# 	0.052500, 0.035000, 0.002500, -0.065000, -0.175000
+#*# 	0.027500, 0.042500, 0.007500, -0.057500, -0.155000
+#*# 	-0.067500, -0.050000, -0.067500, -0.125000, -0.217500
+#*# tension = 0.2
+#*# min_x = 50.0
+#*# algo = lagrange
+#*# y_count = 5
+#*# mesh_y_pps = 2
+#*# min_y = 40.0
+#*# x_count = 5
+#*# max_y = 275.0
+#*# mesh_x_pps = 2
+#*# max_x = 270.0
+#*#
+#*# [heater_bed]
+#*#
+#*# [part_cooler_heater]
+#*# control = pid
+#*# pid_kp = 31.958
+#*# pid_ki = 2.803
+#*# pid_kd = 91.079
